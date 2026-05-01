@@ -40,6 +40,12 @@ while IFS= read -r model_json; do
 done < <(echo "$health" | jq -c '.all_models_loaded[]')
 
 if [[ "$should_unload" -eq 1 ]]; then
+    port=$(echo "$ENDPOINT" | awk -F: '{print $NF}' | tr -d '/')
+    active_conns=$(ss -tn state established "( dport = :${port} or sport = :${port} )" 2>/dev/null | tail -n +2 | wc -l)
+    if [[ "$active_conns" -gt 0 ]]; then
+        echo "Active connection(s) detected on port ${port} — model may be processing, skipping unload."
+        exit 0
+    fi
     curl -sf -X POST "${ENDPOINT}/api/v1/unload" > /dev/null
     echo "All models unloaded successfully."
 fi
