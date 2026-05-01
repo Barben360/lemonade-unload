@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ENDPOINT="http://localhost:13305"
-TIMEOUT=300
+TIMEOUT=900
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
